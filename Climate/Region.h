@@ -20,25 +20,7 @@ struct DeathCause
 	MortalityModel model;
 	float bound;
 
-	float		GetMortalityAtAge(int age) const
-	{
-		float rate = 0;
-		
-		switch (model)
-		{
-		case ModelConstant:
-			rate = (age >= offset) ? std::max(.0f, linearK) : .0f;
-			break;
-		case ModelConstantBounded:
-			rate = (age >= offset && age < bound) ? std::max(.0f, linearK) : .0f;
-			break;
-		case ModelExponential:
-			rate = std::max(.0f, linearK) * std::expf(expK * (age - offset));
-			break;
-		}
-
-		return isnormal(rate) ? rate : .0f;
-	}
+	float GetMortalityAtAge(int age) const;
 };
 
 struct PopulationUnit

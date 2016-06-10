@@ -18,6 +18,28 @@ const int   fertilityMax = 49;
 std::vector<uint64_t> sPrevDeadD;
 uint64_t sPrevTotalDead;
 
+
+float DeathCause::GetMortalityAtAge(int age) const
+{
+	float rate = 0;
+
+	switch (model)
+	{
+	case ModelConstant:
+		rate = (age >= offset) ? std::max(.0f, linearK) : .0f;
+		break;
+	case ModelConstantBounded:
+		rate = (age >= offset && age < bound) ? std::max(.0f, linearK) : .0f;
+		break;
+	case ModelExponential:
+		rate = std::max(.0f, linearK) * std::expf(expK * (age - offset));
+		break;
+	}
+
+	return isnormal(rate) ? rate : .0f;
+}
+
+
 static std::vector<DeathCause> Diseases = 
 {
 	{"Cancer", 0.105f, 0.08f, 100.5f, ModelExponential},
@@ -28,12 +50,6 @@ static std::vector<DeathCause> Diseases =
 	{"Workplace", 0.000005f, .0f, 18.f, ModelConstantBounded, (float)elderAge },
 	{"Early childhood", 0.005f, 0.0f, .0f, ModelConstantBounded, 5.f},
 	{"Crime", 0.00001f, .0f, 18.f }
-	//{"Respiratory", 0.0437952f/2/*0.1397498263f / 2*/, 50, 80},
-	//{"Digestive", 0.0310723f/2/*0.05075283762f / 2*/, 30, 80},
-	//{"Mental", 0.0330193f/2/*0.06409543665f / 2*/, 60, 80},
-	//{"Nervous", 0.0262074f/2/*0.0382904795f / 2*/, 65, 80},
-	//{"Non-disease", 0.0262074f/2/*0.03630993746f / 2*/, 20, 80},
-	//{"Others", 0.0363424f/2/*0.08686587908f / 2*/, 40, 80}
 };
 
 
@@ -167,4 +183,3 @@ void Region::Evaluate()
 	sPrevDeadD = deadD;
 	sPrevTotalDead = totalDead;
 }
-																								   
